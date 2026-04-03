@@ -1,10 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/logo"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { createClient } from "@/lib/supabase"
 import {
   ListTodo,
   BarChart3,
@@ -24,6 +26,26 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
+  const [email, setEmail] = useState("")
+  const [initials, setInitials] = useState("?")
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        setEmail(user.email)
+        setInitials(user.email[0].toUpperCase())
+      }
+    }
+    getUser()
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-r border-border bg-sidebar lg:flex">
@@ -61,18 +83,16 @@ export function DashboardSidebar() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border border-border">
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              JD
+              {initials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">
-              John Doe
-            </p>
             <p className="truncate text-xs text-muted-foreground">
-              john@example.com
+              {email || "Loading..."}
             </p>
           </div>
           <button
+            onClick={handleLogout}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
             aria-label="Log out"
           >
