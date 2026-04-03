@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/logo"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { createClient } from "@/lib/supabase"
 import {
   Menu,
   ListTodo,
@@ -29,6 +30,30 @@ const navItems = [
 export function MobileNav() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
+  
+  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
+  const [initials, setInitials] = useState("?")
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        setEmail(user.email)
+        const displayName = user.user_metadata?.full_name || user.email.split("@")[0]
+        setName(displayName)
+        setInitials(displayName[0].toUpperCase())
+      }
+    }
+    getUser()
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
 
   return (
     <div className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background px-4 lg:hidden">
@@ -76,18 +101,19 @@ export function MobileNav() {
             <div className="flex items-center gap-3">
               <Avatar className="h-9 w-9 border border-border">
                 <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                  JD
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="truncate text-sm font-medium text-foreground">
-                  John Doe
+                  {name || "Loading..."}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  john@example.com
+                  {email || "..."}
                 </p>
               </div>
               <button
+                onClick={handleLogout}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
                 aria-label="Log out"
               >

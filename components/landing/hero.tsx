@@ -58,21 +58,21 @@ export function Hero() {
             </Button>
           </div>
 
-          {/* Social Proof */}
+          {/* Core Values */}
           <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-foreground">10k+</span>
-              <span>Active users</span>
+              <span className="text-lg font-bold text-foreground">Science-Based</span>
+              <span>Approaches</span>
             </div>
             <div className="h-8 w-px bg-border" />
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-foreground">4.9</span>
-              <span>Average rating</span>
+              <span className="text-lg font-bold text-foreground">Privacy First</span>
+              <span>Design</span>
             </div>
             <div className="h-8 w-px bg-border" />
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-foreground">3x</span>
-              <span>More tasks completed</span>
+              <span className="text-lg font-bold text-foreground">Seamless Sync</span>
+              <span>Across Devices</span>
             </div>
           </div>
         </div>

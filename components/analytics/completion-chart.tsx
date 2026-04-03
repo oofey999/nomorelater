@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   LineChart,
@@ -10,26 +11,51 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts"
-
-// Generate 30 days of mock data
-const generateData = () => {
-  const data = []
-  const today = new Date()
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
-    data.push({
-      date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      completed: Math.floor(Math.random() * 8) + 4,
-      total: Math.floor(Math.random() * 4) + 10,
-    })
-  }
-  return data
-}
-
-const data = generateData()
+import { createClient } from "@/lib/supabase"
 
 export function CompletionChart() {
+  const [data, setData] = useState<any[]>([])
+  const supabase = createClient()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: allTasks } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user.id)
+
+      if (allTasks) {
+        const chartData = []
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        for (let i = 29; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(date.getDate() - i)
+          
+          const nextDay = new Date(date)
+          nextDay.setDate(date.getDate() + 1)
+
+          const dayTasks = allTasks.filter((t: any) => {
+             const tDate = new Date(t.created_at)
+             return tDate >= date && tDate < nextDay
+          })
+
+          chartData.push({
+            date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            completed: dayTasks.filter((t: any) => t.completed).length,
+            total: dayTasks.length,
+          })
+        }
+        setData(chartData)
+      }
+    }
+    fetchData()
+  }, [])
+
   return (
     <Card className="border-border bg-card">
       <CardHeader>
@@ -57,6 +83,7 @@ export function CompletionChart() {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                allowDecimals={false}
               />
               <Tooltip
                 contentStyle={{

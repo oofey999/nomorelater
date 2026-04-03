@@ -30,6 +30,7 @@ const priorityConfig: Record<Priority, { label: string; className: string }> = {
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [newTask, setNewTask] = useState("")
+  const [newPriority, setNewPriority] = useState<Priority>("medium")
   const [showInput, setShowInput] = useState(false)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -62,7 +63,7 @@ export function TaskList() {
       .from("tasks")
       .insert({
         title: newTask,
-        priority: "medium",
+        priority: newPriority,
         duration: "30m",
         completed: false,
         user_id: user.id,
@@ -73,6 +74,7 @@ export function TaskList() {
     if (data) {
       setTasks((prev) => [data, ...prev])
       setNewTask("")
+      setNewPriority("medium")
       setShowInput(false)
     }
   }
@@ -113,6 +115,15 @@ export function TaskList() {
               className="border-border bg-background"
               autoFocus
             />
+            <select
+              value={newPriority}
+              onChange={(e) => setNewPriority(e.target.value as Priority)}
+              className="px-3 border border-border rounded-md bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
             <Button onClick={addTask} className="bg-primary hover:bg-primary/90">Add</Button>
             <Button variant="outline" onClick={() => setShowInput(false)}>Cancel</Button>
           </div>

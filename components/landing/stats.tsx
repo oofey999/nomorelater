@@ -1,42 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { BookOpen, Target, Infinity } from "lucide-react"
 
 const stats = [
-  { value: 77, suffix: "%", label: "of students procrastinate regularly" },
-  { value: 3, suffix: "x", label: "more tasks completed by our users" },
-  { value: 89, suffix: "%", label: "report improved focus within 2 weeks" },
+  { title: "Organize Wisely", desc: "Prioritize what matters most", icon: Target },
+  { title: "CBT Methods", desc: "Built on cognitive behavioral therapy", icon: BookOpen },
+  { title: "Track Progress", desc: "Analyze your habits over time", icon: Infinity },
 ]
-
-function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    const duration = 2000
-    const steps = 60
-    const increment = value / steps
-    let current = 0
-
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= value) {
-        setCount(value)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(current))
-      }
-    }, duration / steps)
-
-    return () => clearInterval(timer)
-  }, [value])
-
-  return (
-    <span className="text-4xl font-bold text-foreground sm:text-5xl">
-      {count}
-      {suffix}
-    </span>
-  )
-}
 
 export function Stats() {
   return (
@@ -44,9 +14,12 @@ export function Stats() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              <p className="mt-2 text-sm text-muted-foreground">{stat.label}</p>
+            <div key={index} className="text-center flex flex-col items-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
+                <stat.icon className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">{stat.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{stat.desc}</p>
             </div>
           ))}
         </div>
